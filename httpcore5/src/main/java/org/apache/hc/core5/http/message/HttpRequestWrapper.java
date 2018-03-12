@@ -63,27 +63,27 @@ public class HttpRequestWrapper extends AbstractMessageWrapper implements HttpRe
 
     @Override
     public String getQueryParametersAsString() {
-      return message.getQueryParametersAsString();
+        return message.getQueryParametersAsString();
     }
 
     @Override
     public List<NameValuePair> getQueryParameters() {
-      return message.getQueryParameters();
+        return message.getQueryParameters();
     }
 
     @Override
     public void setQueryParameters(String rawQueryParameters) {
-      message.setQueryParameters(rawQueryParameters);
+        message.setQueryParameters(rawQueryParameters);
     }
 
     @Override
     public void setQueryParameters(List<NameValuePair> queryParameters) {
-      message.setQueryParameters(queryParameters);
+        message.setQueryParameters(queryParameters);
     }
 
     @Override
     public String getScheme() {
-      return message.getScheme();
+        return message.getScheme();
     }
 
     @Override

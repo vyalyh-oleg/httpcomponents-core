@@ -65,15 +65,15 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
      * @param uri request uri as string.
      */
     public BasicHttpRequest(final String method, final String uri) {
-      super();
-      this.method = method;
-      if (uri != null) {
-        try {
-          setUri(new URI(uri));
-        } catch (final URISyntaxException ex) {
-          this.path = uri;
+        super();
+        this.method = method;
+        if (uri != null) {
+            try {
+                setUri(new URI(uri));
+            } catch (final URISyntaxException ex) {
+                this.path = uri;
+            }
         }
-      }
     }
 
     /**
@@ -82,11 +82,10 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
      * @param method request method.
      * @param host request host.
      * @param path request path.
-     *
      * @since 5.0
      */
     public BasicHttpRequest(final String method, final HttpHost host, final String path) {
-      this(method, host, path, (List<NameValuePair>) null);
+        this(method, host, path, (List<NameValuePair>) null);
     }
 
     /**
@@ -99,8 +98,9 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
      * @since 5.0
      */
     public BasicHttpRequest(final String method, final HttpHost host, final String path,
-        final String rawQueryParameters) {
-      this(method, host, path, URLEncodedUtils.parse(rawQueryParameters, Charset.defaultCharset()));
+            final String rawQueryParameters) {
+        this(method, host, path,
+                URLEncodedUtils.parse(rawQueryParameters, Charset.defaultCharset()));
     }
 
     /**
@@ -113,14 +113,14 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
      * @since 5.0
      */
     public BasicHttpRequest(final String method, final HttpHost host, final String path,
-        final List<NameValuePair> queryParameters) {
-      super();
-      this.method = Args.notNull(method, "Method name");
-      this.scheme = host != null ? host.getSchemeName() : null;
-      this.authority = host != null ? new URIAuthority(host) : null;
-      this.path = path != null ? path : "/";
-      this.queryParameters =
-          queryParameters != null ? queryParameters : new ArrayList<NameValuePair>();
+            final List<NameValuePair> queryParameters) {
+        super();
+        this.method = Args.notNull(method, "Method name");
+        this.scheme = host != null ? host.getSchemeName() : null;
+        this.authority = host != null ? new URIAuthority(host) : null;
+        this.path = path;
+        this.queryParameters =
+                queryParameters != null ? queryParameters : new ArrayList<NameValuePair>();
     }
 
     /**
@@ -128,7 +128,6 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
      *
      * @param method request method.
      * @param requestUri request URI.
-     *
      * @since 5.0
      */
     public BasicHttpRequest(final String method, final URI requestUri) {
@@ -171,31 +170,31 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
 
     @Override
     public void setPath(final String path) {
-      this.path = (path != null && !path.isEmpty()) ? path : "/";
-      this.requestUri = null;
+        this.path = path;
+        this.requestUri = null;
     }
 
     @Override
     public String getQueryParametersAsString() {
-      return URLEncodedUtils.format(this.queryParameters, Charset.defaultCharset());
+        return URLEncodedUtils.format(this.queryParameters, Charset.defaultCharset());
     }
 
     @Override
     public void setQueryParameters(String rawQueryParameters) {
-      this.queryParameters = URLEncodedUtils.parse(rawQueryParameters, Charset.defaultCharset());
-      this.requestUri = null;
+        this.queryParameters = URLEncodedUtils.parse(rawQueryParameters, Charset.defaultCharset());
+        this.requestUri = null;
     }
 
     @Override
     public List<NameValuePair> getQueryParameters() {
-      return this.queryParameters;
+        return this.queryParameters;
     }
 
     @Override
     public void setQueryParameters(List<NameValuePair> queryParameters) {
-      this.queryParameters =
-          queryParameters != null ? queryParameters : new ArrayList<NameValuePair>();
-      this.requestUri = null;
+        this.queryParameters =
+                queryParameters != null ? queryParameters : new ArrayList<NameValuePair>();
+        this.requestUri = null;
     }
 
     @Override
@@ -222,76 +221,75 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
 
     @Override
     public String getRequestUri() {
-      String s = this.path;
-      if (!this.queryParameters.isEmpty()) {
-        s += "?" + URLEncodedUtils.format(this.queryParameters, Charset.defaultCharset());
-      }
-      return s;
+        String s = this.path;
+        if (!this.queryParameters.isEmpty()) {
+            s += "?" + URLEncodedUtils.format(this.queryParameters, Charset.defaultCharset());
+        }
+        return s;
     }
 
     void setUri(final URI requestUri) {
-      this.scheme = requestUri.getScheme();
-      this.authority = requestUri.getHost() != null ? new URIAuthority(
-          requestUri.getRawUserInfo(),
-          requestUri.getHost(),
-          requestUri.getPort()) : null;
+        this.scheme = requestUri.getScheme();
+        this.authority = requestUri.getHost() != null ? new URIAuthority(
+                requestUri.getRawUserInfo(),
+                requestUri.getHost(),
+                requestUri.getPort()) : null;
 
-      String rawQuery = requestUri.getRawQuery();
+        String rawQuery = requestUri.getRawQuery();
 
-      if (rawQuery == null) {
-        this.queryParameters = new ArrayList<>();
-      } else {
-        this.queryParameters = URLEncodedUtils.parse(rawQuery, Charset.defaultCharset());
-      }
+        if (rawQuery == null) {
+            this.queryParameters = new ArrayList<>();
+        } else {
+            this.queryParameters = URLEncodedUtils.parse(rawQuery, Charset.defaultCharset());
+        }
 
-      String path = requestUri.getPath();
-      if (path == null || "".equals(path)) {
-        this.path = "/";
-      } else {
-        this.path = path;
-      }
+        String path = requestUri.getPath();
+        if (path.isEmpty()) {
+            this.path = "/";
+        } else {
+            this.path = path;
+        }
 
-      try {
-        this.requestUri = getUri();
-      } catch (URISyntaxException e) {
-        // we can do nothing here
-      }
+        try {
+            this.requestUri = getUri();
+        } catch (URISyntaxException e) {
+            // we can do nothing here
+        }
     }
 
     @Override
     public URI getUri() throws URISyntaxException {
-      if (this.requestUri == null) {
+        if (this.requestUri == null) {
+            URIBuilder builder = new URIBuilder();
+            if (this.authority != null) {
+                builder.setScheme(this.scheme != null ? this.scheme : "http");
+                builder.setHost(this.authority.getHostName());
+                if (this.authority.getPort() >= 0) {
+                    builder.setPort(this.authority.getPort());
+                }
+            }
 
-        URIBuilder builder = new URIBuilder();
-        if (this.authority != null) {
-          builder.setScheme(this.scheme != null ? this.scheme : "http");
-          builder.setHost(this.authority.getHostName());
-          if (this.authority.getPort() >= 0) {
-            builder.setPort(this.authority.getPort());
-          }
+            if (this.path == null) {
+                builder.setPath("/");
+            } else if (!this.path.startsWith("/")) {
+                builder.setPath("/" + this.path);
+            } else {
+                builder.setPath(this.path);
+            }
+
+            builder.setParameters(this.queryParameters);
+            this.requestUri = builder.build();
         }
-
-        if (this.path == null) {
-          builder.setPath("/");
-        } else if (!this.path.startsWith("/")) {
-          builder.setPath("/" + this.path);
-        } else {
-          builder.setPath(this.path);
-        }
-
-        builder.setParameters(this.queryParameters);
-        this.requestUri = builder.build();
-      }
-      return this.requestUri;
+        return this.requestUri;
     }
 
     @Override
     public String toString() {
-      String s = this.method + " " + this.scheme + "://" + this.authority + this.path;
-      if (!this.queryParameters.isEmpty()) {
-        s += "?" + URLEncodedUtils.format(this.queryParameters, Charset.defaultCharset());
-      }
-      return s;
+        String s = this.method + " " + this.scheme + "://" + this.authority + this.path;
+        if (!this.queryParameters.isEmpty()) {
+            s += "?" + URLEncodedUtils.format(this.queryParameters, Charset.defaultCharset());
+        }
+        return s;
     }
 
 }
