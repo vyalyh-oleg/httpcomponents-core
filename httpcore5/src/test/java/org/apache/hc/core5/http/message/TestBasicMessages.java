@@ -150,7 +150,9 @@ public class TestBasicMessages {
     public void testRequestWithAbsoluteURI() throws Exception {
         final HttpRequest request = new BasicHttpRequest("GET", new URI("https://host:9443/stuff?param=value"));
         Assert.assertEquals("GET", request.getMethod());
-        Assert.assertEquals("/stuff?param=value", request.getPath());
+        Assert.assertEquals("/stuff?param=value", request.getRequestUri());
+        Assert.assertEquals("/stuff", request.getPath());
+        Assert.assertEquals("param=value", request.getQueryParametersAsString());
         Assert.assertEquals(new URIAuthority("host", 9443), request.getAuthority());
         Assert.assertEquals("https", request.getScheme());
         Assert.assertEquals(new URI("https://host:9443/stuff?param=value"), request.getUri());
@@ -160,7 +162,9 @@ public class TestBasicMessages {
     public void testRequestWithAbsoluteURIAsPath() throws Exception {
         final HttpRequest request = new BasicHttpRequest("GET", "https://host:9443/stuff?param=value");
         Assert.assertEquals("GET", request.getMethod());
-        Assert.assertEquals("/stuff?param=value", request.getPath());
+        Assert.assertEquals("/stuff?param=value", request.getRequestUri());
+        Assert.assertEquals("/stuff", request.getPath());
+        Assert.assertEquals("param=value", request.getQueryParametersAsString());
         Assert.assertEquals(new URIAuthority("host", 9443), request.getAuthority());
         Assert.assertEquals("https", request.getScheme());
         Assert.assertEquals(new URI("https://host:9443/stuff?param=value"), request.getUri());
@@ -180,7 +184,9 @@ public class TestBasicMessages {
     public void testRequestWithUserInfo() throws Exception {
         final HttpRequest request = new BasicHttpRequest("GET", new URI("https://user:pwd@host:9443/stuff?param=value"));
         Assert.assertEquals("GET", request.getMethod());
-        Assert.assertEquals("/stuff?param=value", request.getPath());
+        Assert.assertEquals("/stuff?param=value", request.getRequestUri());
+        Assert.assertEquals("/stuff", request.getPath());
+        Assert.assertEquals("param=value", request.getQueryParametersAsString());
         Assert.assertEquals(new URIAuthority("user:pwd", "host", 9443), request.getAuthority());
         Assert.assertEquals("https", request.getScheme());
         Assert.assertEquals(new URI("https://host:9443/stuff?param=value"), request.getUri());

@@ -29,7 +29,7 @@ package org.apache.hc.core5.http;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-
+import java.util.List;
 import org.apache.hc.core5.net.URIAuthority;
 
 /**
@@ -61,6 +61,34 @@ public interface HttpRequest extends HttpMessage {
      * @since 5.0
      */
     void setPath(String path);
+
+    /**
+     * Returns URI query parameters of this request message.
+     *
+     * @since 5.0
+     */
+    String getQueryParametersAsString();
+
+    /**
+     * Returns URI query parameters of this request message.
+     *
+     * @since 5.0
+     */
+    List<NameValuePair> getQueryParameters();
+
+    /**
+     * Sets URI encoded query parameters of this request message.
+     *
+     * @since 5.0
+     */
+    void setQueryParameters(String rawQueryParameters);
+
+    /**
+     * Sets URI encoded query parameters of this request message.
+     *
+     * @since 5.0
+     */
+    void setQueryParameters(List<NameValuePair> queryParameters);
 
     /**
      * Returns scheme of this request message.
