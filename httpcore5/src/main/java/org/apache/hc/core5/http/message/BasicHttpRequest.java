@@ -30,7 +30,6 @@ package org.apache.hc.core5.http.message;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
@@ -56,7 +55,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     private String scheme;
     private URIAuthority authority;
     private String path;
-    private List<NameValuePair> queryParameters = new ArrayList<>();
+    private List<NameValuePair> queryParameters;
 
     /**
      * Creates request message with the given method and request path.
@@ -119,8 +118,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
         this.scheme = host != null ? host.getSchemeName() : null;
         this.authority = host != null ? new URIAuthority(host) : null;
         this.path = path;
-        this.queryParameters =
-                queryParameters != null ? queryParameters : new ArrayList<NameValuePair>();
+        this.queryParameters = queryParameters;
     }
 
     /**
@@ -176,7 +174,9 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
 
     @Override
     public String getQueryParametersAsString() {
-        return URLEncodedUtils.format(this.queryParameters, Charset.defaultCharset());
+        if (this.queryParameters != null)
+            return URLEncodedUtils.format(this.queryParameters, Charset.defaultCharset());
+        return null;
     }
 
     @Override
@@ -192,8 +192,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
 
     @Override
     public void setQueryParameters(List<NameValuePair> queryParameters) {
-        this.queryParameters =
-                queryParameters != null ? queryParameters : new ArrayList<NameValuePair>();
+        this.queryParameters = queryParameters;
         this.requestUri = null;
     }
 
@@ -222,7 +221,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     @Override
     public String getRequestUri() {
         String s = this.path;
-        if (!this.queryParameters.isEmpty()) {
+        if (this.queryParameters != null && !this.queryParameters.isEmpty()) {
             s += "?" + URLEncodedUtils.format(this.queryParameters, Charset.defaultCharset());
         }
         return s;
@@ -237,9 +236,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
 
         String rawQuery = requestUri.getRawQuery();
 
-        if (rawQuery == null) {
-            this.queryParameters = new ArrayList<>();
-        } else {
+        if (rawQuery != null) {
             this.queryParameters = URLEncodedUtils.parse(rawQuery, Charset.defaultCharset());
         }
 
@@ -277,7 +274,10 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
                 builder.setPath(this.path);
             }
 
-            builder.setParameters(this.queryParameters);
+            if (this.queryParameters != null) {
+                builder.setParameters(this.queryParameters);
+            }
+
             this.requestUri = builder.build();
         }
         return this.requestUri;
@@ -286,7 +286,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     @Override
     public String toString() {
         String s = this.method + " " + this.scheme + "://" + this.authority + this.path;
-        if (!this.queryParameters.isEmpty()) {
+        if (this.queryParameters != null && !this.queryParameters.isEmpty()) {
             s += "?" + URLEncodedUtils.format(this.queryParameters, Charset.defaultCharset());
         }
         return s;
