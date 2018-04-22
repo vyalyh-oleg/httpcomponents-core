@@ -40,7 +40,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
@@ -67,7 +66,6 @@ import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.NHttpMessageParser;
 import org.apache.hc.core5.http.nio.NHttpMessageWriter;
-import org.apache.hc.core5.http.nio.ResourceHolder;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.http.nio.command.ExecutionCommand;
@@ -75,19 +73,13 @@ import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.EventMask;
-import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
-import org.apache.hc.core5.reactor.ProtocolLayer;
-import org.apache.hc.core5.reactor.ssl.SSLBufferManagement;
-import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
-import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
-import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Identifiable;
 
 abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, OutgoingMessage extends HttpMessage>
-        implements Identifiable, ResourceHolder, TransportSecurityLayer, ProtocolLayer, HttpConnection {
+        implements Identifiable, HttpConnection {
 
     private enum ConnectionState { READY, ACTIVE, GRACEFUL_SHUTDOWN, SHUTDOWN}
 
@@ -395,7 +387,6 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         }
         if (connState.compareTo(ConnectionState.SHUTDOWN) >= 0) {
             ioSession.close();
-            releaseResources();
         }
     }
 
@@ -439,7 +430,6 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                 break;
             }
         }
-        releaseResources();
     }
 
     void requestShutdown(final ShutdownType shutdownType) {
@@ -609,30 +599,6 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     public SSLSession getSSLSession() {
         final TlsDetails tlsDetails = ioSession.getTlsDetails();
         return tlsDetails != null ? tlsDetails.getSSLSession() : null;
-    }
-
-    @Override
-    public TlsDetails getTlsDetails() {
-        return ioSession.getTlsDetails();
-    }
-
-    @Override
-    public void startTls(
-            final SSLContext sslContext,
-            final SSLBufferManagement sslBufferManagement,
-            final SSLSessionInitializer initializer,
-            final SSLSessionVerifier verifier) throws UnsupportedOperationException {
-        ioSession.startTls(sslContext, sslBufferManagement, initializer, verifier);
-    }
-
-    @Override
-    public IOEventHandler getHandler() {
-        return ioSession.getHandler();
-    }
-
-    @Override
-    public void upgrade(final IOEventHandler eventHandler) {
-        ioSession.upgrade(eventHandler);
     }
 
 }
